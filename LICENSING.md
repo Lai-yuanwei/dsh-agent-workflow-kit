@@ -1,17 +1,15 @@
 # Licensing status
 
-**Status: the project plans to use the MIT license. The copyright holder has not
-been confirmed, so no `LICENSE` file is included yet.**
-
-Until a `LICENSE` file with the confirmed copyright line is added, no license is
-granted and default copyright applies. Do not assume or invent an author name.
+**Status: the original content in this repository is licensed under the MIT License.**
+See [LICENSE](./LICENSE), copyright (c) 2026 Lai-yuanwei.
+The repository is currently a private preview and has not been publicly released.
 
 ## Original content
 
-The templates, documentation, skill text, governance checker and example project
-in this repository were written for this kit. The intended license is MIT. A
-`LICENSE` file with the MIT text and the confirmed copyright line will be added
-once the holder is confirmed; no placeholder author name is used.
+The original templates, documentation, skill text, governance checker and example
+project in this repository are licensed under the MIT License as described in
+[LICENSE](./LICENSE). The copyright holder is Lai-yuanwei. This statement does
+not relicense any external dependencies or third-party works.
 
 ## Third-party components
 
