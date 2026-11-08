@@ -11,7 +11,7 @@ supplies the team profile, documents and review discipline that connect them.
 This kit is compatible with BMAD Method and requires the AgentTeams plugin. It
 ships neither engine and is not an official BMAD, AgentTeams or DSH project.
 
-> **Status: local preview.** Nothing here is published, committed or uploaded.
+> **Status: private preview.** This repository is uploaded privately for review; it has not been publicly released or licensed.
 > This is an independent community project; it is not an official BMAD,
 > AgentTeams or DSH project. See [LICENSING.md](./LICENSING.md).
 
