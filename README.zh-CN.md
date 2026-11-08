@@ -6,9 +6,9 @@
 本仓库只提供"协作约定"：BMAD 提供角色技能，AgentTeams 提供任务与质量门禁，
 本套件提供团队画像、文档模板与审查纪律。
 
-> **当前状态：GitHub 私有预览，尚未公开发布或授予开源许可。** 本套件是独立社区项目，
-> 不代表 BMAD、AgentTeams 或 DSH 官方。计划采用 MIT 许可证，版权署名待确认，见
-> [LICENSING.md](./LICENSING.md)。
+> **当前状态：GitHub 私有预览，尚未公开发布。** 本项目原创内容已采用 MIT 许可证，
+> 版权署名为 Lai-yuanwei。本套件是独立社区项目，不代表 BMAD、AgentTeams 或 DSH 官方，
+> 详情见 [LICENSE](./LICENSE) 与 [LICENSING.md](./LICENSING.md)。
 
 ## 包含内容
 
@@ -59,5 +59,6 @@ Captain 只负责派单与汇报，不替专业成员批准其环节；审查任
 
 ## 许可证
 
-计划采用 MIT 许可证。版权署名尚未确认，因此暂不包含 `LICENSE`，目前不授予任何许可。
+本项目原创内容采用 [MIT 许可证](./LICENSE)，版权署名为 Lai-yuanwei（2026 年）。
+仓库目前仍为私有预览，尚未正式公开发布。第三方依赖的版权与许可保持独立，
 详见 [`LICENSING.md`](./LICENSING.md)。
