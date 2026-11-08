@@ -1,0 +1,79 @@
+{
+  "_comment": "Role write policies for check.py. Deny wins over allow; a path matching neither is a violation (default deny). Patterns use fnmatch syntax relative to the project root. This is an example: adjust the directories to your project layout and keep it small.",
+  "roles": {
+    "analyst": {
+      "allow": [
+        "docs/planning/**"
+      ],
+      "deny": [
+        "**/ARCHITECTURE.md",
+        "src/**",
+        "tests/**",
+        "docs/delivery/**",
+        "AGENTS.md",
+        "docs/team/**",
+        ".agent-teams/**"
+      ]
+    },
+    "architect": {
+      "allow": [
+        "docs/planning/**",
+        "docs/delivery/**"
+      ],
+      "deny": [
+        "**/SPEC.md",
+        "**/PRD*.md",
+        "**/QA-REPORT.md",
+        "**/FINAL-VERIFICATION.md",
+        "src/**",
+        "tests/**",
+        "AGENTS.md",
+        "docs/team/**",
+        ".agent-teams/**"
+      ]
+    },
+    "developer": {
+      "allow": [
+        "src/**",
+        "tests/**",
+        "docs/delivery/**"
+      ],
+      "deny": [
+        "**/SPEC.md",
+        "**/ARCHITECTURE.md",
+        "**/PRD*.md",
+        "docs/planning/**",
+        "**/QA-REPORT.md",
+        "**/REVIEW*.md",
+        "**/FINAL-VERIFICATION.md",
+        "AGENTS.md",
+        "docs/team/**",
+        ".agent-teams/**"
+      ]
+    },
+    "qa": {
+      "allow": [
+        "docs/delivery/**"
+      ],
+      "deny": [
+        "docs/planning/**",
+        "src/**",
+        "tests/**",
+        "AGENTS.md",
+        "docs/team/**",
+        ".agent-teams/**"
+      ]
+    },
+    "captain": {
+      "allow": [
+        "AGENTS.md",
+        "docs/team/**",
+        ".governance/**"
+      ],
+      "deny": [
+        "src/**",
+        "tests/**"
+      ]
+    }
+  }
+}
