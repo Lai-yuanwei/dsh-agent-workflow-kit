@@ -11,7 +11,7 @@ supplies the team profile, documents and review discipline that connect them.
 This kit is compatible with BMAD Method and requires the AgentTeams plugin. It
 ships neither engine and is not an official BMAD, AgentTeams or DSH project.
 
-> **Status: private preview.** This repository is uploaded privately for review; it has not been publicly released or licensed.
+> **Status: private preview.** This repository remains private; its original contents are now MIT-licensed. It has not been publicly released.
 > This is an independent community project; it is not an official BMAD,
 > AgentTeams or DSH project. See [LICENSING.md](./LICENSING.md).
 
@@ -101,6 +101,7 @@ each phase must produce.
 ├── README.md
 ├── README.zh-CN.md
 ├── LICENSING.md
+├── LICENSE
 ├── .gitignore
 ├── templates/
 │   ├── team-profile.yml
@@ -143,6 +144,7 @@ python -m pytest ./governance/tests -q -p no:cacheprovider
 
 ## License
 
-The kit is planned to be released under the MIT license. The copyright holder
-is not confirmed yet, so no `LICENSE` file is included and no license is
-granted at this point. See [`LICENSING.md`](./LICENSING.md).
+The original contents of this kit are licensed under the [MIT License](./LICENSE).
+Copyright (c) 2026 Lai-yuanwei. Third-party software is not bundled; see
+[`LICENSING.md`](./LICENSING.md) for dependency and trademark notes.
+The repository is currently private; a public release has not yet been made.
