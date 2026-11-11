@@ -13,15 +13,17 @@ persistence, no network, no UI.
 
 | Role | Skills | Writes |
 | --- | --- | --- |
-| analyst | `bmad-agent-analyst` | `./docs/planning/**` |
+| analyst | `bmad-agent-analyst` | `./docs/planning/**`, `./docs/team/DISCOVERY.md` |
 | architect | `bmad-agent-architect` | `./docs/planning/**` |
 | developer | `bmad-agent-dev` | `./src/**`, `./tests/**` |
 | qa | `bmad-code-review` | `./docs/delivery/**` |
 
 ## Gates
 
-K1 → SPEC, K2 → architecture, K3 → code, K4 → delivery. "Continue" is not
-approval.
+K1 → SPEC, K2 → architecture, K3 → code, K4 → delivery. "Continue" may approve
+the single approval object and next action explicitly proposed in the previous
+turn. Ambiguous replies, multiple objects and silence do not establish approval.
+Record the exact words, date and approved object.
 
 ## Hard rules
 

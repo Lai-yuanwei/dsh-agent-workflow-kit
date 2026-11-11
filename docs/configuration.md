@@ -83,6 +83,7 @@ The templates assume this layout; rename it consistently if your project differs
 ./docs/team/TEAM_SPEC.md
 ./docs/team/HANDOFF.md
 ./docs/team/DISCOVERY.md
+./docs/team/RECOVERY.md
 ./docs/planning/SPEC.md
 ./docs/planning/ARCHITECTURE.md
 ./src/

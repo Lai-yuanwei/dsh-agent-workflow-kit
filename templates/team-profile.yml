@@ -45,9 +45,11 @@ profiles:
       - K3 approves the architecture: only then may implementation and tests start.
       - K4 is final delivery acceptance. Testing may start after K3, but a passing
         test suite is not K4.
-      Acknowledging a proposal ("that works", "continue", "explain this feature")
-      is not a gate approval. Never advance past an unapproved gate, and never
-      claim a gate is approved without the user's explicit words.
+      Approval wording is interpreted in context: "that works", "continue",
+      "okay", or similar can approve only when the previous turn clearly named
+      one approval object and its next action. Ambiguous, multi-object, or silent
+      replies do not approve. Record the user's exact words and the approved
+      object. Never advance without that contextual approval.
 
       Roles and dispatch
       - The captain is the single communication entry point. It dispatches work,
@@ -71,6 +73,13 @@ profiles:
       7) Create teams with a unique name and approval="required".
       8) Do not hand-edit team.json, copy team state, or inherit another team's
          approvals, identity or session.
+      9) On resuming, follow ./docs/team/RECOVERY.md. Confirm ownership and no
+         active competing writers. Use a supported operator transfer or an
+         explicitly approved new team; re-verify reused artifacts.
+      10) Before each write attempt, establish owner/attempt and take its baseline
+          while the writer is paused. Repairs use their own verify task id.
+          Preserve scope receipts and historical reviews; record validated
+          delivery --supersede OLD=NEW mappings in HANDOFF when applicable.
     taskPlanning: captain
     members:
       - name: analyst
@@ -80,10 +89,12 @@ profiles:
           BMAD business-analyst and product-manager skills with the skill tool; cite
           which skill you loaded.
           Scope: requirements interviews and requirement documents under
-          ./docs/planning/. Never write code, architecture, QA reports or AGENTS.md.
+          ./docs/planning/, plus confirmed decisions in ./docs/team/DISCOVERY.md.
+          Never write other docs/team files, code, architecture, QA reports or AGENTS.md.
           Gates: do not produce a formal SPEC before the user approves K1. Treat
-          "that works", "continue", or a question about a feature as discussion, not
-          as K1 approval.
+          short acknowledgements as K1 approval only when the previous turn clearly
+          named K1's single approval object and next action. Ambiguous, multi-object,
+          or silent replies are not approval. Record the exact words and object.
           Record confirmed decisions in ./docs/team/DISCOVERY.md after each round;
           keep open questions open and list the constraints the user stated.
           Evidence: quote the user's decision, name the file and section you

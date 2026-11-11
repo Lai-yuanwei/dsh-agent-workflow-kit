@@ -38,7 +38,13 @@
 | K3 | "The architecture is right." | developer implements; qa may start tests |
 | K4 | "I accept the delivery." | delivery closes |
 
-Non-approvals — treat all of these as discussion, not approval:
+Interpret approval wording in context. A short reply such as "可以", "继续",
+"okay", or "that works" approves the single object and next action explicitly
+named in the immediately preceding turn. If that turn named multiple objects or
+was unclear, the reply does not establish approval; silence never does. Record
+the user's exact words and the object approved.
+
+These are not approvals by themselves:
 
 - "That works." / "Okay." / "Continue."
 - "Explain how this feature works."
@@ -52,7 +58,7 @@ When in doubt, ask: "Is this K1 approval, or should we keep discussing?"
 | Phase | Task kind | Owner | Evidence |
 | --- | --- | --- | --- |
 | Requirements | `requirements` | analyst | SPEC path, acceptance list, `verdict=pass` |
-| Architecture | `work` (or `requirements` for design review) | architect | ARCHITECTURE path, feasibility, risks |
+| Architecture | `requirements` | architect | ARCHITECTURE path, acceptance criteria, verify commands, feasibility and risks, `verdict=pass` |
 | Implementation | `implementation` | developer | changed paths, verify commands, exit codes |
 | Verification | `verification` | qa (or developer for unit checks) | test output, probes, coverage notes |
 | Review | `review` | non-implementer | findings with file/line/command, `verdict` |
@@ -61,6 +67,11 @@ When in doubt, ask: "Is this K1 approval, or should we keep discussing?"
 
 Gate rules are mirrored in dependencies: an implementation task cannot be
 claimed before its requirements dependency completes with `verdict=pass`.
+Architecture design is a quality task: use `requirements` with acceptance
+criteria, verify commands and a passing verdict. K2 authorizes starting it;
+task completion then checks the design evidence. `work` has no quality gate and
+must not be used for architecture writes. A `requirements` task may also review
+design read-only.
 
 ## 4. Quality contracts
 
@@ -127,3 +138,10 @@ At the end of a session:
 3. Leave the team in a known state (idle, or archived); never leave a write task
    running while you stop.
 4. Report what the next session must verify first.
+
+Use [the recovery procedure](./recovery.md) to decide whether the next session
+can continue the same team or needs an approved new team. Preserve history and
+scope receipts. Delivery after repairs uses explicit validated supersession
+mappings; see [checker contracts](../governance/README.md). The real integration
+acceptance record in the recovery guide remains required before claiming a
+tested DSH/AgentTeams session-to-session workflow.

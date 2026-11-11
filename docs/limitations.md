@@ -58,6 +58,16 @@ Program-level, checked by the plugin:
 - is a post-hoc detector, not an isolation mechanism. Real isolation requires
   separate workspaces, containers or an enforcing filesystem layer.
 
+The `delivery` command audits recorded evidence; it is not a full delivery gate.
+Success says `EVIDENCE CONSISTENT`, and never substitutes for separate scope,
+review, acceptance-coverage or K4 checks. Empty evidence, missing hashes and
+unknown write-task roles cannot pass. Historical rejected or stale code reviews
+require an explicit, validated `--supersede OLD=NEW` mapping. Deleted files need
+successful scope receipts bound to the deleting task and baseline. Neither
+mechanism proves findings were semantically resolved. See
+[`governance/README.md`](../governance/README.md) for exact command contracts,
+exit codes and the reproducible offline scenario.
+
 ## 4. Process limits
 
 - Gate approvals are only as good as the record. Store the user's words and the

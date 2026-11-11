@@ -12,7 +12,7 @@ Subcommands
   scope    --task ID       compare the tree with the baseline and apply the
                            role write policy of the task assignee
   review   --task ID       verify reviewer independence (reviewer != implementer)
-  delivery --team NAME     verify recorded verdicts still match the bytes on disk
+  delivery                audit recorded evidence (not delivery approval)
 
 Exit codes: 0 = pass, 2 = violation, 3 = cannot verify.
 
@@ -27,13 +27,13 @@ import fnmatch
 import hashlib
 import json
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = Path(".governance")
-BASELINE_DIR = STATE_DIR / "baselines"
 IGNORE_DIRS = {
     ".agent-teams",
     ".governance",
@@ -55,6 +55,10 @@ ROLE_ALIASES = {
 WRITE_KINDS = {"implementation", "repair", "integration"}
 
 
+class CannotVerify(ValueError):
+    """Required evidence is missing or structurally invalid."""
+
+
 # --------------------------------------------------------------------------- io
 
 
@@ -70,6 +74,17 @@ def write_json(path: Path, payload) -> None:
         handle.write("\n")
 
 
+def state_path(root: Path, category: str, team: str, task: str) -> Path:
+    # Opaque ids may contain characters that are not safe Windows path names.
+    key = lambda value: hashlib.sha256(str(value).encode("utf-8")).hexdigest()
+    return root / STATE_DIR / category / key(team) / f"{key(task)}.json"
+
+
+def task_identity(team: str, task: dict) -> dict:
+    return {"team": team, "task": task.get("id"), "assignee": task.get("assignee"),
+            "kind": task.get("kind", "work"), "attempt": task.get("attempt")}
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
@@ -83,7 +98,10 @@ def sha256(path: Path) -> str:
 
 def snapshot(root: Path) -> dict:
     files = {}
-    for dirpath, dirnames, filenames in os.walk(root):
+    def unreadable(error):
+        raise error
+
+    for dirpath, dirnames, filenames in os.walk(root, onerror=unreadable):
         dirnames[:] = sorted(name for name in dirnames if name not in IGNORE_DIRS)
         for name in sorted(filenames):
             if name.endswith(IGNORE_SUFFIXES):
@@ -92,10 +110,7 @@ def snapshot(root: Path) -> dict:
             rel = path.relative_to(root).as_posix()
             if rel.split("/", 1)[0] in IGNORE_DIRS:
                 continue
-            try:
-                files[rel] = sha256(path)
-            except OSError:
-                continue
+            files[rel] = sha256(path)
     return files
 
 
@@ -115,13 +130,13 @@ def team_dir(root: Path, name: str | None) -> Path:
         candidate = base / name
         if (candidate / "team.json").is_file():
             return candidate
-        raise SystemExit(f"cannot verify: no team JSON at {candidate / 'team.json'}")
+        raise CannotVerify(f"no team JSON at {candidate / 'team.json'}")
     candidates = sorted(path.parent for path in base.glob("*/team.json"))
     if len(candidates) == 1:
         return candidates[0]
     if not candidates:
-        raise SystemExit("cannot verify: no .agent-teams/*/team.json in this project")
-    raise SystemExit(
+        raise CannotVerify("no .agent-teams/*/team.json in this project")
+    raise CannotVerify(
         "cannot verify: several teams present, pass --team: "
         + ", ".join(path.name for path in candidates)
     )
@@ -136,7 +151,7 @@ def find_task(team: dict, task_id: str) -> dict:
     for task in team.get("tasks", []):
         if task.get("id") == task_id:
             return task
-    raise SystemExit(f"cannot verify: task {task_id} not found in team state")
+    raise CannotVerify(f"task {task_id} not found in team state")
 
 
 def role_of(team: dict, task: dict, roles: dict) -> str:
@@ -148,11 +163,11 @@ def role_of(team: dict, task: dict, roles: dict) -> str:
         label = str(member.get("role") or "")
         if label in roles:
             return label
-        if label in ROLE_ALIASES:
+        if label in ROLE_ALIASES and ROLE_ALIASES[label] in roles:
             return ROLE_ALIASES[label]
-    if assignee in ROLE_ALIASES:
+    if assignee in ROLE_ALIASES and ROLE_ALIASES[assignee] in roles:
         return ROLE_ALIASES[assignee]
-    raise SystemExit(
+    raise CannotVerify(
         f"cannot verify: cannot map assignee {assignee!r} to a role policy "
         f"(known roles: {', '.join(sorted(roles))})"
     )
@@ -203,7 +218,8 @@ def cmd_baseline(args, root: Path) -> int:
         "fileCount": len(files),
         "files": files,
     }
-    target = root / BASELINE_DIR / f"{args.task}.json"
+    payload.update(task_identity(team_path.name, task))
+    target = state_path(root, "baselines", team_path.name, args.task)
     write_json(target, payload)
     print(f"baseline {args.task}: {len(files)} files -> {target.relative_to(root).as_posix()}")
     return 0
@@ -217,21 +233,14 @@ def cmd_scope(args, root: Path) -> int:
     policy = roles[role]
 
     label = args.baseline or args.task
-    base_path = root / BASELINE_DIR / f"{label}.json"
-    if not base_path.is_file() and args.baseline is None:
-        # A repair task inherits the verify command of its source task, so fall
-        # back to the nearest ancestor baseline that exists.
-        for candidate in (task.get("sourceTaskId"), ):
-            if candidate:
-                alternate = root / BASELINE_DIR / f"{candidate}.json"
-                if alternate.is_file():
-                    base_path, label = alternate, candidate
-                    break
+    base_path = state_path(root, "baselines", team_path.name, label)
     if not base_path.is_file():
         print(f"scope: CANNOT VERIFY - no baseline {label}.json; run baseline first")
         return 3
 
     before = load_json(base_path)
+    if any(before.get(key) != value for key, value in task_identity(team_path.name, task).items()):
+        raise CannotVerify("baseline belongs to a different team, task, owner or attempt")
     changes = diff(before["files"], snapshot(root))
     violations = []
     for category in ("added", "modified", "removed"):
@@ -266,6 +275,10 @@ def cmd_scope(args, root: Path) -> int:
             write_json(Path(args.json), result)
         return 2
     print("scope: PASS")
+    # Receipt records actual removals, not merely declared changedPaths.
+    receipt = dict(result, identity=task_identity(team_path.name, task),
+                   baselineSha256=sha256(base_path), policy=policy)
+    write_json(state_path(root, "scopes", team_path.name, args.task), receipt)
     if args.json:
         write_json(Path(args.json), result)
     return 0
@@ -273,27 +286,31 @@ def cmd_scope(args, root: Path) -> int:
 
 def implementers_of(team: dict, task: dict) -> tuple[list[dict], list[str]]:
     by_id = {item.get("id"): item for item in team.get("tasks", [])}
-    lineage = [task]
-    seen = {task.get("id")}
-    stack = [task]
-    while stack:
-        current = stack.pop()
-        parents = []
-        if current.get("sourceTaskId"):
-            parents.append(current["sourceTaskId"])
-        for dependency in current.get("dependencies") or []:
-            upstream = by_id.get(dependency)
-            if upstream is not None and upstream.get("kind") in WRITE_KINDS:
-                parents.append(dependency)
+    if not all(by_id) or len(by_id) != len(team.get("tasks", [])):
+        raise CannotVerify("lineage requires unique, nonempty task ids")
+    lineage = []
+    visited, visiting = set(), set()
+
+    def visit(task_id):
+        if task_id in visiting:
+            raise CannotVerify(f"cycle in task lineage at {task_id}")
+        if task_id in visited:
+            return
+        current = by_id.get(task_id)
+        if current is None:
+            raise CannotVerify(f"missing lineage task {task_id}")
+        visiting.add(task_id)
+        lineage.append(current)
+        parents = list(current.get("dependencies") or [])
+        for key in ("sourceTaskId", "reviewedTaskId"):
+            if current.get(key):
+                parents.append(current[key])
         for parent_id in parents:
-            if parent_id in seen:
-                continue
-            parent = by_id.get(parent_id)
-            if parent is None:
-                continue
-            seen.add(parent_id)
-            lineage.append(parent)
-            stack.append(parent)
+            visit(parent_id)
+        visiting.remove(task_id)
+        visited.add(task_id)
+
+    visit(task.get("id"))
 
     implementers = []
     unknown = []
@@ -389,21 +406,117 @@ def cmd_review(args, root: Path) -> int:
     return 0
 
 
+def verified_removals(root: Path, team_name: str, task: dict, roles: dict, team: dict) -> set[str]:
+    """A successful scope receipt is required to distinguish deletion from loss."""
+    receipt_path = state_path(root, "scopes", team_name, task.get("id"))
+    if task.get("status") != "completed" or not receipt_path.is_file():
+        return set()
+    receipt = load_json(receipt_path)
+    baseline = state_path(root, "baselines", team_name, task.get("id"))
+    policy = roles[role_of(team, task, roles)]
+    if (receipt.get("identity") != task_identity(team_name, task)
+            or receipt.get("violations") != [] or receipt.get("policy") != policy
+            or not baseline.is_file() or receipt.get("baselineSha256") != sha256(baseline)):
+        return set()
+    before = load_json(baseline)
+    return {path for path in receipt.get("changes", {}).get("removed", [])
+            if path in before.get("files", {}) and path in (task.get("changedPaths") or [])
+            and classify(policy, path)[0] == "allowed" and not (root / path).exists()}
+
+
+def superseded_reviews(team: dict, pairs: list[str], removals: dict) -> dict[str, str]:
+    """Validate explicit replacement edges without changing runtime history."""
+    replacements = {}
+    for pair in pairs:
+        old_id, separator, new_id = pair.partition("=")
+        if not separator or not old_id or not new_id or old_id == new_id or old_id in replacements:
+            raise CannotVerify(f"invalid or duplicate supersession: {pair}")
+        replacements[old_id] = new_id
+    # Each old review must point straight to a current terminal review. This
+    # also rejects cycles; multi-round history can map every old id to the final id.
+    if set(replacements) & set(replacements.values()):
+        raise CannotVerify("supersession chains/cycles are not allowed; name the terminal review")
+    for old_id, new_id in replacements.items():
+        old, new = find_task(team, old_id), find_task(team, new_id)
+        if old.get("kind") != "review" or new.get("kind") != "review":
+            raise CannotVerify("only code review records can be superseded")
+        if not old.get("assignee") or old.get("assignee") != new.get("assignee"):
+            raise CannotVerify("replacement must preserve the reviewer identity")
+        if new.get("status") != "completed" or new.get("verdict") != "pass":
+            raise CannotVerify(f"replacement review {new_id} has not passed")
+        old_target = find_task(team, old.get("reviewedTaskId"))
+        target = find_task(team, new.get("reviewedTaskId"))
+        owners, unknown = implementers_of(team, target)
+        if not owners or unknown or new["assignee"] in {item["assignee"] for item in owners}:
+            raise CannotVerify(f"replacement review {new_id} is not provably independent")
+        # Follow repair-source links, not arbitrary scheduling dependencies.
+        current, seen, repair_ids = target, set(), []
+        while current.get("id") not in {old_id, old_target.get("id")}:
+            current_id = current.get("id")
+            if current_id in seen:
+                raise CannotVerify("cycle in replacement lineage")
+            seen.add(current_id)
+            if current.get("kind") == "review":
+                current = find_task(team, current.get("reviewedTaskId"))
+            elif current.get("kind") == "repair" and current.get("status") == "completed":
+                repair_ids.append(current_id)
+                current = find_task(team, current.get("sourceTaskId"))
+            else:
+                raise CannotVerify(f"{new_id} is not a completed repair of {old_id}")
+        if not repair_ids:
+            raise CannotVerify("replacement needs a completed repair, not a parallel review")
+        required = {item.get("path") for item in old.get("reviewedArtifacts") or []}
+        required.update(old_target.get("changedPaths") or [])
+        for repair_id in repair_ids:
+            required.update(find_task(team, repair_id).get("changedPaths") or [])
+        if not required or None in required or "" in required:
+            raise CannotVerify(f"cannot establish the scope of {old_id}")
+        covered = {item.get("path") for item in new.get("reviewedArtifacts") or []}
+        for repair_id in repair_ids:
+            covered.update(removals.get(repair_id, set()))
+        if not required <= covered:
+            raise CannotVerify(f"{new_id} does not cover all paths from {old_id}")
+    return replacements
+
+
 def cmd_delivery(args, root: Path) -> int:
     team_path, team = load_team(root, args.team)
     roles = load_roles(root)
     problems = []
+    unknown = []
     checked = 0
+    removals = {}
+    for task in team.get("tasks", []):
+        if task.get("kind") in WRITE_KINDS:
+            removals[task.get("id")] = verified_removals(root, team_path.name, task, roles, team)
+    deleted = set().union(*removals.values()) if removals else set()
+    replacements = superseded_reviews(team, args.supersede, removals)
 
     for task in team.get("tasks", []):
-        artifacts = task.get("reviewedArtifacts") or []
+        replaced = task.get("id") in replacements
+        if replaced:
+            print(f"delivery: historical review {task['id']} superseded by {replacements[task['id']]}")
+        artifacts = [] if replaced else task.get("reviewedArtifacts") or []
+        if not replaced and (artifacts or task.get("kind") in {"review", "requirements"}):
+            for field, expected in (("status", "completed"), ("verdict", "pass")):
+                value = task.get(field)
+                if not value:
+                    unknown.append(f"{task.get('id')}: missing {field}")
+                elif value != expected:
+                    problems.append({"task": task.get("id"), "path": "",
+                                     "problem": f"{field} is {value}, expected {expected}"})
+            if not artifacts:
+                unknown.append(f"{task.get('id')}: no reviewed artifacts")
         for artifact in artifacts:
             checked += 1
             path = artifact.get("path") or ""
             recorded = artifact.get("sha256") or ""
             target = root / path
             if not path:
-                problems.append({"task": task.get("id"), "path": path, "problem": "empty path"})
+                unknown.append(f"{task.get('id')}: empty artifact path")
+                continue
+            if not isinstance(recorded, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", recorded):
+                unknown.append(f"{task.get('id')}: {path}: missing or invalid sha256")
                 continue
             if not target.is_file():
                 problems.append(
@@ -411,7 +524,7 @@ def cmd_delivery(args, root: Path) -> int:
                 )
                 continue
             actual = sha256(target)
-            if recorded and actual != recorded:
+            if actual != recorded.lower():
                 problems.append(
                     {
                         "task": task.get("id"),
@@ -424,18 +537,19 @@ def cmd_delivery(args, root: Path) -> int:
 
         for path in task.get("changedPaths") or []:
             declared = root / path
-            if not declared.exists():
+            if not declared.exists() and path not in deleted:
                 problems.append(
                     {"task": task.get("id"), "path": path, "problem": "changedPath missing on disk"}
                 )
 
-        if task.get("kind") in WRITE_KINDS and task.get("changedPaths"):
+        if task.get("kind") in WRITE_KINDS:
             try:
                 role = role_of(team, task, roles)
-            except SystemExit:
+            except CannotVerify as exc:
+                unknown.append(f"{task.get('id')}: {exc}")
                 role = None
             if role:
-                for path in task["changedPaths"]:
+                for path in task.get("changedPaths") or []:
                     verdict, pattern = classify(roles[role], path)
                     if verdict != "allowed":
                         problems.append(
@@ -447,13 +561,20 @@ def cmd_delivery(args, root: Path) -> int:
                             }
                         )
 
-    print(f"delivery: team={team_path.name} artifacts_checked={checked} problems={len(problems)}")
+    if not checked:
+        unknown.append("no recorded artifacts to audit")
+    print(f"delivery evidence audit: team={team_path.name} artifacts_checked={checked} problems={len(problems)}")
     for item in problems:
         print(f"  {item['task']}: {item['path']} -> {item['problem']}")
+    for message in unknown:
+        print(f"  CANNOT VERIFY: {message}")
     if problems:
         print("delivery: BLOCKED")
         return 2
-    print("delivery: PASS")
+    if unknown:
+        print("delivery: CANNOT VERIFY")
+        return 3
+    print("delivery: EVIDENCE CONSISTENT - not delivery approval; scope, review and K4 remain separate")
     return 0
 
 
@@ -480,7 +601,9 @@ def main(argv=None) -> int:
     review.add_argument("--task", required=True)
     review.set_defaults(func=cmd_review)
 
-    delivery = sub.add_parser("delivery", help="check verdict freshness before delivery")
+    delivery = sub.add_parser("delivery", help="audit recorded evidence; does not approve delivery")
+    delivery.add_argument("--supersede", action="append", default=[], metavar="OLD=NEW",
+                          help="explicit historical review replacement (repeatable; validated)")
     delivery.set_defaults(func=cmd_delivery)
 
     args = parser.parse_args(argv)
@@ -488,7 +611,11 @@ def main(argv=None) -> int:
     if not root.is_dir():
         print(f"cannot verify: root {root} is not a directory")
         return 3
-    return args.func(args, root)
+    try:
+        return args.func(args, root)
+    except (CannotVerify, OSError, ValueError, KeyError, TypeError) as exc:
+        print(f"{args.command}: CANNOT VERIFY - {exc}")
+        return 3
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 **Status: the original content in this repository is licensed under the MIT License.**
 See [LICENSE](./LICENSE), copyright (c) 2026 Lai-yuanwei.
-The repository is currently a private preview and has not been publicly released.
+The source repository is public. No tagged GitHub Release has been published as of 2026-11-11; full live DSH/AgentTeams integration validation is still pending. Source availability and MIT licensing do not imply a stable software release.
 
 ## Original content
 
