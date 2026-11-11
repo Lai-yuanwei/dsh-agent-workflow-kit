@@ -42,7 +42,10 @@ when their intent is ambiguous.
 | B — technical consulting | Read-only answers at any stage; never create delivery tasks |
 | C — delivery execution | Only after explicit approval; create teams with a unique name and `approval="required"` |
 
-If the user says "that works", "continue", or asks a question, that is not gate
+Interpret short replies in context: "可以", "继续", "okay", or "that works"
+approve only the single approval object and next action clearly named in the
+immediately preceding turn. Ambiguous or multi-object turns and silence do not
+approve. Record the exact words and approved object. A question alone is not
 approval.
 
 ## Gates
@@ -81,6 +84,12 @@ agent_teams_create(name="<project>-dev-<YYYYMMDD-HHmm>", profile="<profile>", ap
 - Evidence: command, exit code, output excerpt, path, hashes where verdicts bind.
 - If the governance checker is installed, include `scope`/`review` in `verify`
   and run `delivery` before delivery.
+- Establish owner and attempt, pause before the first write, and take the task's
+  baseline. Use the repair's own task id in its verify commands. Preserve scope
+  receipts; never create a baseline retroactively to prove past writes.
+- Keep rejected review history. Where a completed repair and independent review
+  replace an old code review, run the validated `--supersede OLD=NEW` audit and
+  record its output. A mapping alone does not prove findings are resolved.
 
 ## Evidence discipline
 
@@ -93,6 +102,10 @@ and explain why.
 When pausing: update `./docs/team/HANDOFF.md` (phase, gate status, artifacts and
 hashes, open tasks, next action) and note which verdicts became stale. Keep
 `./docs/team/DISCOVERY.md` limited to confirmed decisions.
+Ensure no writers remain active. On resuming, read `./docs/team/RECOVERY.md`:
+confirm runtime ownership, use only supported transfer operations, or obtain
+approval for a new team that re-verifies existing artifacts. Do not copy old
+task state, approvals or receipts to impersonate the old team.
 
 ## Boundaries
 

@@ -52,8 +52,10 @@ is intended. Never create a team merely because a session started.
 
 Rules:
 
-1. A gate opens only on the user's explicit words. "That works", "continue",
-   "explain this function", or a question about the product is **not** approval.
+1. Interpret the user's words in context. "That works" or "continue" may approve
+   the single approval object and next action explicitly proposed in the previous
+   turn. Ambiguous replies, multiple objects, questions alone and silence do not
+   establish approval. Record the exact words, date and approved object.
 2. Testing may start after K3. A green test suite is not K4.
 3. If a gate is rejected, record the reason and the changes required before it
    can be re-proposed.
@@ -105,7 +107,8 @@ Ownership follows the artifact, not who is named in a task.
 | `./docs/planning/**/ARCHITECTURE.md`, architecture decisions | architect | read-only; raise findings |
 | `./src/**`, `./tests/**` | developer | read-only; qa may add probes under `./docs/delivery/probes/` |
 | `./docs/delivery/**` (QA and review reports) | the author (qa / architect) | read-only |
-| `./AGENTS.md`, `./docs/team/**`, plugin configuration | captain, with user approval | forbidden |
+| `./docs/team/DISCOVERY.md` | analyst or captain; confirmed decisions only | read-only |
+| `./AGENTS.md`, other `./docs/team/**`, plugin configuration | captain, with user approval | forbidden |
 
 Developers never edit approved requirements or architecture. Requirement changes
 belong to the analyst; architecture changes belong to the architect; test
@@ -145,9 +148,16 @@ python ./tools/governance/check.py delivery
 ```
 
 - `implementation` / `repair` verify commands include `scope --task <id>`; the
-  captain runs `baseline --task <id>` before dispatch.
+  captain takes `baseline --task <id>` after owner/attempt initialization but
+  before the first write. Pause the writer if needed. Repairs use their own
+  task id and fresh baseline; never inherit the source task's verify id.
 - `review` verify includes `review --task <id>`.
 - Before delivery, run `delivery`.
+
+Preserve historical reviews. Use validated `delivery --supersede OLD=NEW`
+mappings for completed repair chains and record the exact command in HANDOFF.
+Missing files require successful scope deletion receipts. On a new session,
+follow `./docs/team/RECOVERY.md`; never assume ownership of the old team.
 
 Exit codes: 0 pass, 2 violation, 3 cannot verify. Exit 3 is never a pass.
 

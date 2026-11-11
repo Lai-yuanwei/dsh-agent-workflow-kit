@@ -3,7 +3,8 @@
   "roles": {
     "analyst": {
       "allow": [
-        "docs/planning/**"
+        "docs/planning/**",
+        "docs/team/DISCOVERY.md"
       ],
       "deny": [
         "**/ARCHITECTURE.md",
@@ -11,7 +12,6 @@
         "tests/**",
         "docs/delivery/**",
         "AGENTS.md",
-        "docs/team/**",
         ".agent-teams/**"
       ]
     },

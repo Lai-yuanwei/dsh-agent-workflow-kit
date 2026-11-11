@@ -11,7 +11,7 @@ supplies the team profile, documents and review discipline that connect them.
 This kit is compatible with BMAD Method and requires the AgentTeams plugin. It
 ships neither engine and is not an official BMAD, AgentTeams or DSH project.
 
-> **Status: private preview.** This repository remains private; its original contents are now MIT-licensed. It has not been publicly released.
+> **Status: public preview.** The original contents are MIT-licensed; full live DSH/AgentTeams integration validation is still pending.
 > This is an independent community project; it is not an official BMAD,
 > AgentTeams or DSH project. See [LICENSING.md](./LICENSING.md).
 
@@ -24,7 +24,8 @@ ships neither engine and is not an official BMAD, AgentTeams or DSH project.
 | Cross-session handoff | `./templates/START-HERE.template.md`, `./templates/HANDOFF.template.md`, `./templates/DISCOVERY.template.md` |
 | Team-manager skill | `./skills/agent-team-manager/SKILL.md` — teaches an agent to bootstrap, interview, consult and hand off |
 | Optional governance checker | `./governance/` — post-hoc scope/review/delivery checks wired into task `verify` commands |
-| Guide | `./docs/installation.md`, `./docs/workflow.md`, `./docs/configuration.md`, `./docs/limitations.md` |
+| Guide | `./docs/installation.md`, `./docs/workflow.md`, `./docs/configuration.md`, `./docs/limitations.md`, `./docs/recovery.md` |
+| Governance reference | `./governance/README.md` — command contracts, evidence checks, repair/re-review procedures |
 | Example | `./examples/demo-project/` — a small task-list app the templates are exercised on |
 
 ## What is intentionally not included
@@ -138,6 +139,12 @@ that reviewed artifacts still match their recorded hashes. It is not a sandbox
 and cannot block a write. Read [`docs/limitations.md`](./docs/limitations.md)
 before relying on it.
 
+The `delivery` command checks evidence consistency, not user acceptance.
+See [`governance/README.md`](./governance/README.md) for command contracts,
+exit codes and offline repair/re-review examples.
+See [`docs/recovery.md`](./docs/recovery.md) for session recovery, delivery
+sequence and the real integration acceptance checklist.
+
 ```powershell
 python -m pytest ./governance/tests -q -p no:cacheprovider
 ```
@@ -147,4 +154,4 @@ python -m pytest ./governance/tests -q -p no:cacheprovider
 The original contents of this kit are licensed under the [MIT License](./LICENSE).
 Copyright (c) 2026 Lai-yuanwei. Third-party software is not bundled; see
 [`LICENSING.md`](./LICENSING.md) for dependency and trademark notes.
-The repository is currently private; a public release has not yet been made.
+The repository is public, but full live DSH/AgentTeams integration testing is still pending.

@@ -21,10 +21,22 @@ Copy the templates into the project root:
 ./docs/team/TEAM_SPEC.md                     <- templates/TEAM_SPEC.template.md
 ./docs/team/HANDOFF.md                       <- templates/HANDOFF.template.md
 ./docs/team/DISCOVERY.md                     <- templates/DISCOVERY.template.md
+./docs/team/RECOVERY.md                      <- docs/recovery.md
 ```
 
 Replace every `{{PLACEHOLDER}}` and delete the template notes. Keep paths
 relative to the project root.
+
+To install the optional checker, copy `governance/check.py` into the target
+project as `tools/governance/check.py` and `governance/roles.example.json` as
+`tools/governance/roles.json`. Customize the policy before taking any baseline.
+Read [the command contracts](../governance/README.md), especially attempt-bound
+baselines, deletion receipts and historical-review supersession. Run the tests
+from the kit checkout; copying the checker alone does not install its tests.
+
+If using the optional manager skill, install `skills/agent-team-manager/` through
+the host's supported skill installation mechanism and confirm it is discoverable.
+Copying project templates alone does not install or activate that skill.
 
 ## 3. Install the team profile
 

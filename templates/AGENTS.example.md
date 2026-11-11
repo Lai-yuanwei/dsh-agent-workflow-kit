@@ -31,7 +31,7 @@ Roles must load their skills with the `skill` tool before acting:
 
 | Role | Skills | Writes |
 | --- | --- | --- |
-| analyst | `bmad-agent-analyst`, `bmad-agent-pm`, `bmad-prd` | `./docs/planning/**` (requirements only) |
+| analyst | `bmad-agent-analyst`, `bmad-agent-pm`, `bmad-prd` | `./docs/planning/**` (requirements only), `./docs/team/DISCOVERY.md` |
 | architect | `bmad-agent-architect`, `bmad-architecture` | `./docs/planning/**` (architecture), `./docs/delivery/**` |
 | developer | `bmad-agent-dev`, `bmad-build` | `./src/**`, `./tests/**`, implementation reports |
 | qa | `bmad-code-review`, `bmad-review` | `./docs/delivery/**` (reports and probes) |
@@ -56,7 +56,10 @@ Gate rules (also enforced through task dependencies and `verify` commands):
 Human gates: K1 ends the requirements interview (a formal SPEC may then be
 written), K2 approves the SPEC (architecture may start), K3 approves the
 architecture (coding and tests may start), K4 is delivery acceptance. Approval
-must be explicit; "continue" or "that works" is not a gate approval.
+must be grounded in the user's words. A short reply such as "continue" or
+"that works" can approve the single approval object and next action explicitly
+proposed in the previous turn. Ambiguous replies, multiple objects and silence
+do not establish approval. Record the exact words, date and approved object.
 
 ## 5. Hard rules
 
@@ -89,7 +92,8 @@ Every completion report carries:
 | `./docs/planning/**/ARCHITECTURE.md` | architect |
 | `./src/**`, `./tests/**` | developer |
 | `./docs/delivery/**` | the report's author |
-| `./AGENTS.md`, `./docs/team/**`, plugin config | captain, with user approval |
+| `./docs/team/DISCOVERY.md` | analyst or captain; confirmed decisions only |
+| `./AGENTS.md`, other `./docs/team/**`, plugin config | captain, with user approval |
 
 ## 8. Program-level versus prompt-level
 

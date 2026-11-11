@@ -25,7 +25,8 @@ To use it as a team workspace:
 
 1. Copy this directory somewhere outside the kit repository.
 2. Copy the kit templates for `TEAM_SPEC.md`, `START-HERE.md` and `HANDOFF.md`
-   into `./docs/team/`, replacing placeholders.
+   into `./docs/team/`, replacing placeholders. Also copy the kit's
+   `docs/recovery.md` as `./docs/team/RECOVERY.md`.
 3. Ask the team for mode A and continue the interview in `DISCOVERY.md`.
 4. Approve K1, then K2, then K3 in separate steps; create a team only in mode C.
 5. Run the governance checker if you installed it under `./tools/governance/`.

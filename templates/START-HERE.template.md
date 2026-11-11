@@ -12,6 +12,8 @@
 4. `./docs/team/DISCOVERY.md` — confirmed requirements and open questions.
 
 Also read your role's skill with the `skill` tool before doing professional work.
+For a resumed project, also read `./docs/team/RECOVERY.md` (copied from the kit's
+`docs/recovery.md`). Follow its ownership and active-writer decision table.
 
 ## 2. Verify the actual state
 
@@ -59,8 +61,10 @@ If the user's intent is unclear, ask. Never start mode C on your own initiative.
 | K3 | Architecture approved; implementation and tests may start |
 | K4 | User accepts delivery |
 
-Acknowledging a proposal is not approval. Record each approval with its date,
-the user's own words, and what it unlocks.
+A short acknowledgement can approve the single approval object and next action
+explicitly proposed in the previous turn. Ambiguous replies, multiple objects
+and silence do not establish approval. Record each approval with its date,
+the user's own words, the approved object and what it unlocks.
 
 ## 5. Creating a team (mode C only)
 
@@ -81,8 +85,10 @@ Rules:
 - `approval="required"`: the plan is staged for review and is not started until
   the user approves it.
 - Create the smallest useful task graph; one ready task per member at a time.
-- Before dispatching a write task, run the governance baseline if installed:
-  `python ./tools/governance/check.py baseline --task <id>`.
+- Before the first write, establish the assignee and current attempt, then run
+  `python ./tools/governance/check.py --team <name> baseline --task <id>`.
+  If claim initializes the attempt, pause the writer after claim until the
+  baseline exists. Do not reuse a parent task's baseline for a repair.
 - Serialize writes: one writer at a time.
 - Never fabricate `user.name`, `user.email`, session ids, attempt ids or hashes.
 
@@ -101,6 +107,10 @@ approvals, artifact paths and hashes, open tasks, and the next action. Update
 
 When an artifact changes, state which verdicts become stale (requirements,
 architecture, implementation) and re-run the affected checks.
+Preserve baseline/scope receipts and record the exact delivery audit command,
+including any `--supersede OLD=NEW` mappings. A new session must verify control
+through official tools; if it cannot control the old team, follow RECOVERY's
+supported-transfer or approved-new-team branch, never edit runtime identities.
 
 ## 8. Team profiles are snapshotted
 
@@ -112,7 +122,7 @@ profile appears in the runtime listing.
 
 | Mistake | Correction |
 | --- | --- |
-| Treating "continue" as K1 | Ask for an explicit gate statement |
+| Treating an ambiguous "continue" as K1 | Resolve which object and next action the user approved |
 | Creating a team on session start | Wait for the user's request |
 | Reviewing your own implementation | Assign the review to another role |
 | Claiming tests pass without running them | Run the verify commands and paste exit codes |
