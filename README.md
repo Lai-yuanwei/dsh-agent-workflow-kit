@@ -11,9 +11,24 @@ supplies the team profile, documents and review discipline that connect them.
 This kit is compatible with BMAD Method and requires the AgentTeams plugin. It
 ships neither engine and is not an official BMAD, AgentTeams or DSH project.
 
-> **Status: public preview.** The original contents are MIT-licensed; full live DSH/AgentTeams integration validation is still pending.
+> **Status: public source preview, not a stable release.** Source is available under MIT, but a tagged GitHub Release has not been published and live DSH/AgentTeams end-to-end acceptance remains pending.
 > This is an independent community project; it is not an official BMAD,
 > AgentTeams or DSH project. See [LICENSING.md](./LICENSING.md).
+
+## Current validation
+
+| Check | Result |
+| --- | --- |
+| Source availability | Public GitHub repository, [MIT License](./LICENSE) |
+| Local regression tests | 60 tests passed for the governance checker and demo (2026-11-11) |
+| GitHub Actions | [Tests workflow](./.github/workflows/tests.yml): passed on Ubuntu and Windows with Python 3.11 and 3.13 (2026-11-11); see the workflow for the latest result |
+| Live DSH/AgentTeams integration | **Not yet validated** with a complete real multi-agent delivery |
+| Tagged GitHub Release | **None yet**; public source access does not imply a stable release |
+
+This is a workflow-and-evidence kit, not the AgentTeams runtime, a filesystem
+sandbox, or a guarantee that AI-generated code is correct. See
+[limitations](./docs/limitations.md) and the [real integration acceptance
+checklist](./docs/recovery.md).
 
 ## What you get
 
@@ -149,9 +164,30 @@ sequence and the real integration acceptance checklist.
 python -m pytest ./governance/tests -q -p no:cacheprovider
 ```
 
+## Frequently asked questions
+
+**Does loading the team template run `setup` automatically?** No automatic
+setup invocation is defined by this kit. The separately supplied
+`setup-dsh-manual-test.ps1` is a one-time helper for an isolated manual
+integration rehearsal, not a requirement for normal template use. Local DSH
+hooks or custom startup commands, if configured separately, must be checked
+independently. Do not rerun a rehearsal initializer during an active test:
+it may overwrite test-scope and evidence state.
+
+**Can I start a real software project with this?** Yes, for requirements,
+architecture, and supervised development. Before relying on a four-agent
+delivery workflow, verify the installed plugin/profile compatibility and
+complete the [live acceptance checklist](./docs/recovery.md). User approval
+at K1–K4 remains required.
+
+**Can a new session automatically control an older team?** Not guaranteed.
+Persist the project documents and use the supported recovery paths described
+in [recovery](./docs/recovery.md); do not claim team takeover without runtime
+confirmation.
+
 ## License
 
 The original contents of this kit are licensed under the [MIT License](./LICENSE).
 Copyright (c) 2026 Lai-yuanwei. Third-party software is not bundled; see
 [`LICENSING.md`](./LICENSING.md) for dependency and trademark notes.
-The repository is public, but full live DSH/AgentTeams integration testing is still pending.
+This is publicly available preview source, with no tagged stable GitHub Release yet. Live DSH/AgentTeams integration acceptance remains pending.
