@@ -6,9 +6,23 @@
 本仓库只提供"协作约定"：BMAD 提供角色技能，AgentTeams 提供任务与质量门禁，
 本套件提供团队画像、文档模板与审查纪律。
 
-> **当前状态：GitHub 公开预览，真实 DSH/AgentTeams 集成验收尚未完成。** 本项目原创内容已采用 MIT 许可证，
+> **项目状态：源码公开预览，尚非正式稳定版。** GitHub 仓库已公开并采用 MIT 许可证，但尚未创建正式 GitHub Release，真实 DSH/AgentTeams 端到端集成验收仍待完成。 本项目原创内容已采用 MIT 许可证，
 > 版权署名为 Lai-yuanwei。本套件是独立社区项目，不代表 BMAD、AgentTeams 或 DSH 官方，
 > 详情见 [LICENSE](./LICENSE) 与 [LICENSING.md](./LICENSING.md)。
+
+## 当前验证情况
+
+| 项目 | 当前情况 |
+| --- | --- |
+| 源码与许可证 | GitHub 已公开，采用 [MIT 许可证](./LICENSE) |
+| 本地回归测试 | 治理检查器与示例项目共 60 项测试通过（2026-11-11） |
+| GitHub Actions | [自动测试](./.github/workflows/tests.yml) 已在 Ubuntu/Windows、Python 3.11/3.13 上通过（2026-11-11）；后续以工作流最新结果为准 |
+| 真实 DSH 多 Agent 集成 | **尚未完成完整的真实协作交付验收** |
+| GitHub Release | **尚未创建**；仓库已公开不等于已经发布稳定版 |
+
+本项目是团队流程、任务约定和审查凭据工具包，不是 AgentTeams 的调度引擎，
+也不提供写文件前的强制隔离。使用前请阅读 [能力边界](./docs/limitations.md)
+和 [真实集成验收清单](./docs/recovery.md)。
 
 ## 包含内容
 
@@ -59,8 +73,23 @@ Captain 只负责派单与汇报，不替专业成员批准其环节；审查任
 - 治理命令与离线回归案例：[`governance/README.md`](./governance/README.md)
 - 跨会话恢复、返修与真实集成验收：[`docs/recovery.md`](./docs/recovery.md)
 
+## 常见问题
+
+**调用团队模板会反复运行 `setup` 吗？** 本仓库没有配置自动执行 setup 的逻辑。
+你另外使用的 `setup-dsh-manual-test.ps1` 是独立测试环境的一次性准备脚本，
+不是日常使用模板的必要步骤。但如果你在 DSH 本机自行配置过启动钩子，
+仍需要单独检查。真实测试开始后，不要随意重跑初始化脚本，以免覆盖测试状态或凭据。
+
+**个人可以直接用来开发软件吗？** 可以先用于需求分析、架构设计和受监督的开发任务。
+真正依赖四成员协作交付前，应核对 DSH、BMAD、AgentTeams 版本，
+并完成 [真实多 Agent 集成验收](./docs/recovery.md)。K1–K4 仍需用户明确批准。
+
+**新会话会自动接管原团队吗？** 不保证。可以按文档保留文件交接，
+具体能否恢复团队控制权，以 DSH 实际提供的功能为准；详见
+[会话恢复指南](./docs/recovery.md)。
+
 ## 许可证
 
 本项目原创内容采用 [MIT 许可证](./LICENSE)，版权署名为 Lai-yuanwei（2026 年）。
-仓库当前已公开，但真实 DSH/AgentTeams 集成验收尚待完成。第三方依赖的版权与许可保持独立，
+仓库源码现已公开，但尚未创建正式稳定版 Release，真实 DSH/AgentTeams 集成验收仍待完成。第三方依赖的版权与许可保持独立，
 详见 [`LICENSING.md`](./LICENSING.md)。
