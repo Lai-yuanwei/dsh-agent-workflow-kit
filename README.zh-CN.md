@@ -6,8 +6,8 @@
 本仓库只提供"协作约定"：BMAD 提供角色技能，AgentTeams 提供任务与质量门禁，
 本套件提供团队画像、文档模板与审查纪律。
 
-> **项目状态：源码公开预览，尚非正式稳定版。** GitHub 仓库已公开并采用 MIT 许可证，但尚未创建正式 GitHub Release，真实 DSH/AgentTeams 端到端集成验收仍待完成。 本项目原创内容已采用 MIT 许可证，
-> 版权署名为 Lai-yuanwei。本套件是独立社区项目，不代表 BMAD、AgentTeams 或 DSH 官方，
+> **项目状态：源码公开预览，尚非正式稳定版。** GitHub 仓库已公开并采用 MIT 许可证，但尚未创建正式 GitHub Release，真实 DSH/AgentTeams 端到端集成验收仍待完成。
+> 本项目原创内容已采用 MIT 许可证，版权署名为 Lai-yuanwei。本套件是独立社区项目，不代表 BMAD、AgentTeams 或 DSH 官方，
 > 详情见 [LICENSE](./LICENSE) 与 [LICENSING.md](./LICENSING.md)。
 
 ## 当前验证情况
